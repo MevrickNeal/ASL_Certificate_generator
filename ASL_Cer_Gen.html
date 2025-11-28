@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpha Science Lab Certificate Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Importing Libre Baskerville (Classic) and Montserrat (Geometric/Engineering) -->
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
+        /* Custom Font Assignments */
+        .font-header { font-family: 'Montserrat', sans-serif; }
+        .font-body { font-family: 'Libre Baskerville', serif; }
+        .font-script { font-family: 'Great Vibes', cursive; }
+
+        /* Print Specific Styles */
+        @media print {
+            @page {
+                size: landscape;
+                margin: 0;
+            }
+            body {
+                background: white;
+                -webkit-print-color-adjust: exact;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-container {
+                width: 100vw;
+                height: 100vh;
+                border: none;
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .certificate-outer {
+                width: 100%;
+                height: 100%;
+                max-width: none;
+                border: none !important;
+                box-shadow: none !important;
+            }
+        }
+
+        /* Subtle Geometric Background Pattern */
+        .bg-subtle-geo {
+            background-color: #ffffff;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        /* Technical Border Styling */
+        .tech-border-corner {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 2px solid #1e293b; /* Slate 800 */
+            z-index: 20;
+        }
+
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen flex flex-col items-center py-8">
+
+    <!-- Control Panel (Hidden on Print) -->
+    <div class="no-print w-full max-w-4xl bg-white p-8 rounded-xl shadow-lg mb-8 mx-4 border-t-4 border-slate-800">
+        <h2 class="text-2xl font-header font-bold text-slate-800 mb-6 pb-2 border-b">Certificate Control Panel</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Text Inputs -->
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Student Name</label>
+                    <input type="text" id="studentName" value="Alex Smith" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 outline-none transition font-header" oninput="updateCertificate()">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Date Awarded</label>
+                    <input type="date" id="dateAwarded" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 outline-none transition font-header" oninput="updateCertificate()">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Award Category</label>
+                    <select id="textTemplate" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 outline-none transition font-header" onchange="updateCertificate()">
+                        <option value="innovator">The Innovator (Creativity)</option>
+                        <option value="distinction">The Distinction (Leadership)</option>
+                        <option value="project">The Project Lead (Technical)</option>
+                        <option value="organizer">The Organizer (Event Management)</option>
+                        <option value="member">General Member (Participation)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Image Uploads -->
+            <div class="space-y-5 border-l-2 border-slate-100 pl-6">
+                 <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Center Logo (Watermark)</label>
+                    <input type="file" accept="image/png, image/jpeg" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:uppercase file:bg-slate-800 file:text-white hover:file:bg-slate-900 cursor-pointer" onchange="handleImage(this, 'logoImg', 'watermarkImg')">
+                </div>
+                
+                <!-- New Corner Logos -->
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Top Left Logo</label>
+                        <input type="file" accept="image/png, image/jpeg" class="w-full text-sm text-slate-500 file:mr-0 file:py-2 file:px-2 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-slate-200 hover:file:bg-slate-300 cursor-pointer" onchange="handleImage(this, 'topLeftLogoImg')">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Top Right Logo</label>
+                        <input type="file" accept="image/png, image/jpeg" class="w-full text-sm text-slate-500 file:mr-0 file:py-2 file:px-2 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-slate-200 hover:file:bg-slate-300 cursor-pointer" onchange="handleImage(this, 'topRightLogoImg')">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">President Signature</label>
+                    <input type="file" accept="image/png, image/jpeg" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:uppercase file:bg-slate-200 hover:file:bg-slate-300 cursor-pointer" onchange="handleImage(this, 'sig1Img', null, 'sig1Text')">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Advisor Signature</label>
+                    <input type="file" accept="image/png, image/jpeg" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:uppercase file:bg-slate-200 hover:file:bg-slate-300 cursor-pointer" onchange="handleImage(this, 'sig2Img', null, 'sig2Text')">
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 flex justify-end">
+             <button onclick="window.print()" class="bg-slate-900 hover:bg-black text-white font-bold py-3 px-8 rounded-lg flex items-center gap-3 transition shadow-xl transform hover:-translate-y-0.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+                Print Certificate
+            </button>
+        </div>
+    </div>
+
+    <!-- Live Preview / Printable Area -->
+    <div class="print-container w-full max-w-[1123px] flex justify-center">
+        
+        <!-- Certificate Outer -->
+        <div class="certificate-outer relative w-[1123px] h-[794px] bg-white text-slate-900 shadow-2xl overflow-hidden">
+            
+            <!-- Background & Watermark -->
+            <div class="absolute inset-0 bg-subtle-geo z-0 opacity-50"></div>
+            
+            <div class="absolute inset-0 flex items-center justify-center z-0">
+                <img id="watermarkImg" src="" class="w-[600px] h-[600px] object-contain opacity-[0.03] grayscale hidden">
+            </div>
+
+            <!-- --- PROFESSIONAL BORDER SYSTEM --- -->
+            <!-- Main Frame -->
+            <div class="absolute inset-8 border border-slate-800 z-10"></div>
+            <div class="absolute inset-[36px] border border-slate-300 z-10"></div>
+            
+            <!-- Technical Corners (Subtle Engineering Nod) -->
+            <!-- Top Left -->
+            <div class="tech-border-corner top-8 left-8 border-r-0 border-b-0"></div>
+            <div class="absolute top-[32px] left-[32px] w-2 h-2 bg-slate-800 z-20"></div>
+            
+            <!-- Top Right -->
+            <div class="tech-border-corner top-8 right-8 border-l-0 border-b-0"></div>
+            <div class="absolute top-[32px] right-[32px] w-2 h-2 bg-slate-800 z-20"></div>
+            
+            <!-- Bottom Left -->
+            <div class="tech-border-corner bottom-8 left-8 border-r-0 border-t-0"></div>
+            <div class="absolute bottom-[32px] left-[32px] w-2 h-2 bg-slate-800 z-20"></div>
+
+            <!-- Bottom Right -->
+            <div class="tech-border-corner bottom-8 right-8 border-l-0 border-t-0"></div>
+            <div class="absolute bottom-[32px] right-[32px] w-2 h-2 bg-slate-800 z-20"></div>
+
+            <!-- Scale Reference (Technical Touch) -->
+            <div class="absolute bottom-10 right-10 z-20">
+                <div class="flex gap-1">
+                    <div class="w-4 h-1 bg-slate-800"></div>
+                    <div class="w-4 h-1 bg-slate-300"></div>
+                    <div class="w-4 h-1 bg-slate-800"></div>
+                </div>
+            </div>
+
+            <!-- New Corner Logos -->
+            <div class="absolute top-12 left-12 z-30 w-24 h-24 flex items-center justify-center">
+                <img id="topLeftLogoImg" src="" class="max-w-full max-h-full object-contain hidden">
+            </div>
+            <div class="absolute top-12 right-12 z-30 w-24 h-24 flex items-center justify-center">
+                <img id="topRightLogoImg" src="" class="max-w-full max-h-full object-contain hidden">
+            </div>
+
+            <!-- Main Content Container -->
+            <div class="relative z-20 h-full flex flex-col px-24 py-16">
+                
+                <!-- Header -->
+                <div class="flex flex-col items-center justify-center mt-4 mb-8">
+                    <!-- Center Logo Area -->
+                    <div class="h-24 mb-6 flex items-center justify-center">
+                        <img id="logoImg" src="" alt="" class="h-full object-contain hidden">
+                        <!-- Clean Placeholder -->
+                        <div id="logoPlaceholder" class="text-slate-800 opacity-90 p-2 border-2 border-slate-800 rounded-full">
+                             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                        </div>
+                    </div>
+
+                    <h1 class="font-header text-5xl font-bold text-slate-900 tracking-wide uppercase mb-3">Alpha Science Lab</h1>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-[1px] bg-slate-400"></div>
+                        <p class="font-header text-xs font-semibold tracking-[0.3em] text-slate-500 uppercase">Creativity starts from belief</p>
+                        <div class="w-12 h-[1px] bg-slate-400"></div>
+                    </div>
+                </div>
+
+                <!-- Core Content -->
+                <div class="flex-grow flex flex-col items-center text-center">
+                    
+                    <p class="font-body italic text-lg text-slate-500 mb-6">This certificate is awarded to</p>
+                    
+                    <!-- Name Area -->
+                    <div class="relative mb-8 px-8">
+                        <h2 class="font-body font-bold text-5xl text-slate-900 z-10 relative" id="displayStudentName">Alex Smith</h2>
+                        <!-- Decorative underline -->
+                        <div class="w-full h-[1px] bg-gradient-to-r from-transparent via-slate-400 to-transparent mt-2"></div>
+                    </div>
+
+                    <!-- Body Text -->
+                    <div class="max-w-3xl">
+                        <p class="font-body text-lg leading-8 text-slate-700" id="displayBodyText">
+                            In recognition of outstanding contributions...
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Footer / Signatures -->
+                <div class="flex justify-between items-end mt-4 mb-6 px-4">
+                    
+                    <!-- Sig 1 -->
+                    <div class="text-center w-64">
+                        <div class="h-20 flex items-end justify-center mb-3">
+                            <img id="sig1Img" src="" class="max-h-full max-w-full object-contain hidden">
+                            <div id="sig1Text" class="font-script text-4xl text-slate-600">Signature</div>
+                        </div>
+                        <div class="h-[1px] bg-slate-800 w-full mb-2"></div>
+                        <p class="font-header text-xs font-bold uppercase text-slate-500 tracking-wider">President</p>
+                    </div>
+
+                    <!-- Date Badge -->
+                    <div class="text-center mb-2">
+                        <div class="border border-slate-300 px-6 py-2 rounded-sm bg-white/50 backdrop-blur-sm">
+                            <p class="font-header text-[10px] font-bold uppercase text-slate-400 mb-1">Date of Issue</p>
+                            <p class="font-body text-lg font-bold text-slate-800" id="displayDate"></p>
+                        </div>
+                    </div>
+
+                    <!-- Sig 2 -->
+                    <div class="text-center w-64">
+                        <div class="h-20 flex items-end justify-center mb-3">
+                            <img id="sig2Img" src="" class="max-h-full max-w-full object-contain hidden">
+                            <div id="sig2Text" class="font-script text-4xl text-slate-600">Signature</div>
+                        </div>
+                        <div class="h-[1px] bg-slate-800 w-full mb-2"></div>
+                        <p class="font-header text-xs font-bold uppercase text-slate-500 tracking-wider">Faculty Advisor</p>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Templates
+        const templates = {
+            innovator: "For demonstrating exceptional creativity and technical aptitude. [Name] has actively contributed to hands-on research and innovative design protocols, significantly advancing our collective pursuit of scientific knowledge.",
+            distinction: "In recognition of distinguished leadership and performance. [Name] has exhibited advanced critical thinking skills through rigorous involvement in competitive challenges, setting a high standard of excellence for the scientific community.",
+            project: "For the successful execution of advanced engineering projects. [Name] applied theoretical concepts to practical challenges with proficiency in research methodology and technical implementation.",
+            organizer: "In recognition of exceptional organizational skills. [Name] played a pivotal role in the successful planning and execution of key events hosted by the Alpha Science Lab, demonstrating strong leadership and teamwork.",
+            member: "This certificate confirms that [Name] has been an active General Member of the Alpha Science Lab. We acknowledge their participation in club activities and their commitment to fostering a community of scientific inquiry."
+        };
+
+        // Initialize Date
+        document.getElementById('dateAwarded').valueAsDate = new Date();
+
+        function updateCertificate() {
+            const name = document.getElementById('studentName').value || "[Student Name]";
+            const date = new Date(document.getElementById('dateAwarded').value);
+            const formattedDate = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            const type = document.getElementById('textTemplate').value;
+
+            document.getElementById('displayStudentName').innerText = name;
+            document.getElementById('displayDate').innerText = formattedDate === "Invalid Date" ? "" : formattedDate;
+            document.getElementById('displayBodyText').innerText = templates[type].replace("[Name]", name);
+        }
+
+        // Image Handling Logic
+        function handleImage(input, imgId, watermarkId = null, textId = null) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Update main image
+                    const img = document.getElementById(imgId);
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                    if(document.getElementById('logoPlaceholder') && imgId === 'logoImg') {
+                        document.getElementById('logoPlaceholder').classList.add('hidden');
+                    }
+
+                    // Update Watermark if requested
+                    if (watermarkId) {
+                        const wm = document.getElementById(watermarkId);
+                        wm.src = e.target.result;
+                        wm.classList.remove('hidden');
+                    }
+
+                    // Hide text placeholder if requested (for signatures)
+                    if (textId) {
+                        document.getElementById(textId).classList.add('hidden');
+                    }
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        updateCertificate();
+    </script>
+</body>
+</html>
