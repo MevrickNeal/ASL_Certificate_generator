@@ -1,4 +1,4 @@
-#Alpha Science Lab Certificate Generator#
+*Alpha Science Lab Certificate Generator*
 
 Overview
 
